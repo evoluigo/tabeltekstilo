@@ -1,0 +1,40 @@
+# SPDX-FileCopyrightText: 2023 hugues de keyzer
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+[tool.black]
+line-length = 79
+target-version = ["py38"]
+
+[tool.isort]
+profile = "black"
+line_length = 79
+
+[tool.poetry]
+name = "indeksilo"
+version = "0.1.0"
+description = "generate a multi-level alphabetical index from text in tabular data format"
+authors = ["hugues de keyzer"]
+license = "AGPL-3.0-or-later"
+readme = "readme.md"
+include = ["LICENSES/*"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pandas = "2.0.3"
+odfpy = "1.4.1"
+openpyxl = "3.1.2"
+numpy = "1.24.4"
+pyuca = "1.2"
+
+[tool.poetry.dev-dependencies]
+pytest = "7.4.0"
+pre-commit = "3.3.3"
+pytest-mock = "3.11.1"
+
+[tool.poetry.scripts]
+indeksilo = "indeksilo.cli:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
