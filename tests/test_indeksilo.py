@@ -7,6 +7,51 @@ import pandas as pd
 import indeksilo
 
 
+def test_main_package_entry():
+    """
+    test that indeksilo.__main__ is well-formed.
+    """
+    from indeksilo import __main__  # noqa: F401
+
+
+def test_main(mocker):
+    """
+    test that the main() function calls read_build_write_index() with correct
+    options.
+    """
+    import sys
+
+    sys.argv = [
+        "indeksilo",
+        "--ref-col",
+        "ref0",
+        "--ref-col",
+        "ref1",
+        "--parent-col",
+        "parent0",
+        "--parent-col",
+        "parent1",
+        "--form-col",
+        "form",
+        "--split-char",
+        "@",
+        "input.ods",
+        "output.ods",
+    ]
+    read_build_write_index = mocker.patch(
+        "indeksilo.cli.read_build_write_index"
+    )
+    indeksilo.cli.main()
+    read_build_write_index.assert_called_once_with(
+        "input.ods",
+        "output.ods",
+        ["ref0", "ref1"],
+        "form",
+        ["parent0", "parent1"],
+        "@",
+    )
+
+
 def test_read_build_write_index(mocker):
     """
     test that read_build_write_index() reads the necessary columns from the
@@ -223,6 +268,31 @@ def test_grouped_refs():
             "form_count": [3, 2],
             "form": ["abc", "def"],
             "refs": ["r0 (2); r1", "r0; r1"],
+        }
+    )
+    assert index_df.compare(expected_index_df).empty
+
+
+def test_empty_form():
+    """
+    test that a line with no data in the form column is skipped.
+    """
+    df = pd.DataFrame(
+        {
+            "form": ["abc", "", "def"],
+            "ref": ["r0", "r1", "r2"],
+        }
+    )
+    index_df = indeksilo.build_index(
+        df,
+        ["ref"],
+        "form",
+    )
+    expected_index_df = pd.DataFrame(
+        {
+            "form_count": [1, 1],
+            "form": ["abc", "def"],
+            "refs": ["r0", "r2"],
         }
     )
     assert index_df.compare(expected_index_df).empty

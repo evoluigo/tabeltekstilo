@@ -31,6 +31,7 @@ pyuca = "1.2"
 pytest = "7.4.0"
 pre-commit = "3.3.3"
 pytest-mock = "3.11.1"
+pytest-cov = "4.1.0"
 
 [tool.poetry.scripts]
 indeksilo = "indeksilo.cli:main"
