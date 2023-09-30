@@ -12,7 +12,7 @@ line_length = 79
 
 [tool.poetry]
 name = "indeksilo"
-version = "0.1.0"
+version = "0.2.0"
 description = "generate a multi-level alphabetical index from text in tabular data format"
 authors = ["hugues de keyzer"]
 license = "AGPL-3.0-or-later"

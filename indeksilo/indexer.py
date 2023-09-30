@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
+import re
 from collections import defaultdict
 
 import pandas as pd
@@ -24,13 +25,31 @@ def _index_factory(level):
     return subfactory
 
 
-def _parse_row(r, parent_cols_i, split_char):
+def _parse_row(r, parent_cols_i, split_char, filters_i):
     if split_char is None:
-        return [[r[i] for i in parent_cols_i]]
+        return [[r[i] for i in parent_cols_i]], {i: [r[i]] for i in filters_i}
     parents = []
     for i in parent_cols_i:
         parents.append(r[i].split(split_char))
-    return [p for p in zip(*parents)]
+    return zip(*parents), {i: r[i].split(split_char) for i in filters_i}
+
+
+def _filter_row(elems, filter_col_vals, filters_i, filter_exclude):
+    result = []
+    for i, elem in enumerate(elems):
+        for col_i, filter_vals in filter_col_vals.items():
+            if len(filter_vals) > 1:
+                filter_val = filter_vals[i]
+            else:
+                filter_val = filter_vals[0]
+            if any(regex.fullmatch(filter_val) for regex in filters_i[col_i]):
+                if not filter_exclude:
+                    result.append(elem)
+                break
+        else:
+            if filter_exclude:
+                result.append(elem)
+    return result
 
 
 def _format_refs(refs):
@@ -87,15 +106,31 @@ def _gen_df_from_index(index, form_col, parent_cols):
     return pd.DataFrame(result, columns=cols)
 
 
+def _get_filters(col_names, filters):
+    filters_i = {}
+    for col, exprs in filters.items():
+        if col in col_names:
+            col_i = col_names.index(col)
+        else:
+            col_i = len(col_names)
+            col_names.append(col)
+        filters_i[col_i] = [re.compile(expr) for expr in exprs]
+    return filters_i
+
+
 def build_index(
     df,
     ref_cols,
     form_col,
     parent_cols=None,
     split_char=None,
+    filters=None,
+    filter_exclude=False,
 ):
     if parent_cols is None:
         parent_cols = []
+    if filters is None:
+        filters = {}
     col_names = []
     col_names.extend(ref_cols)
     ref_cols_i = list(range(len(ref_cols)))
@@ -105,13 +140,22 @@ def build_index(
         range(len(col_names), len(col_names) + len(parent_cols))
     )
     col_names.extend(parent_cols)
+    filters_i = _get_filters(col_names, filters)
     df = df[col_names]
     num_levels = len(parent_cols) + 1
     index = _index_factory(num_levels)()
     for row in df.iterrows():
         r = row[1]
         refs = _REF_COL_SEPARATOR.join([r[i] for i in ref_cols_i])
-        elems = _parse_row(r, parent_cols_i, split_char)
+        elems, filter_col_vals = _parse_row(
+            r, parent_cols_i, split_char, filters_i
+        )
+        if filters_i:
+            elems = _filter_row(
+                elems, filter_col_vals, filters_i, filter_exclude
+            )
+            if not elems:
+                continue
         form = r[form_col_i]
         if not form:
             continue
@@ -131,15 +175,30 @@ def read_build_write_index(
     form_col,
     parent_cols=None,
     split_char=None,
+    filters=None,
+    filter_exclude=False,
 ):
     if parent_cols is None:
         parent_cols = []
+    if filters is None:
+        filters = {}
     col_names = []
     col_names.extend(ref_cols)
     col_names.append(form_col)
     col_names.extend(parent_cols)
+    for col in filters:
+        if col not in col_names:
+            col_names.append(col)
     df = pd.read_excel(
         input_filename, usecols=col_names, dtype=str, keep_default_na=False
     )
-    index_df = build_index(df, ref_cols, form_col, parent_cols, split_char)
+    index_df = build_index(
+        df,
+        ref_cols,
+        form_col,
+        parent_cols,
+        split_char,
+        filters,
+        filter_exclude,
+    )
     index_df.to_excel(output_filename)

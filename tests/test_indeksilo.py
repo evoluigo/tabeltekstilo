@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 import pandas as pd
+import pytest
 
 import indeksilo
 
@@ -35,6 +36,11 @@ def test_main(mocker):
         "form",
         "--split-char",
         "@",
+        "--filter",
+        "fcol:val0",
+        "--filter",
+        "fcol:val1",
+        "--filter-exclude",
         "input.ods",
         "output.ods",
     ]
@@ -49,7 +55,53 @@ def test_main(mocker):
         "form",
         ["parent0", "parent1"],
         "@",
+        {"fcol": ["val0", "val1"]},
+        True,
     )
+    read_build_write_index.reset_mock()
+    sys.argv = [
+        "indeksilo",
+        "--ref-col",
+        "ref0",
+        "--form-col",
+        "form",
+        "input.ods",
+        "output.ods",
+    ]
+    indeksilo.cli.main()
+    read_build_write_index.assert_called_once_with(
+        "input.ods",
+        "output.ods",
+        ["ref0"],
+        "form",
+        None,
+        None,
+        None,
+        False,
+    )
+
+
+def test_filter_args(mocker):
+    """
+    test that the format of the expression of filter arguments is checked.
+    """
+    import sys
+
+    import indeksilo.cli
+
+    sys.argv = [
+        "indeksilo",
+        "--ref-col",
+        "ref0",
+        "--form-col",
+        "form",
+        "--filter",
+        "val0",
+        "input.ods",
+        "output.ods",
+    ]
+    with pytest.raises(SystemExit):
+        indeksilo.cli.main()
 
 
 def test_read_build_write_index(mocker):
@@ -88,6 +140,8 @@ def test_read_build_write_index(mocker):
         "form col",
         ["parent 0", "parent 1", "parent 2"],
         "@",
+        {"fcol": ["val0", "val1"]},
+        True,
     )
     pd.read_excel.assert_called_once_with(
         "input.ods",
@@ -98,6 +152,7 @@ def test_read_build_write_index(mocker):
             "parent 0",
             "parent 1",
             "parent 2",
+            "fcol",
         ],
         dtype=str,
         keep_default_na=False,
@@ -108,6 +163,8 @@ def test_read_build_write_index(mocker):
         "form col",
         ["parent 0", "parent 1", "parent 2"],
         "@",
+        {"fcol": ["val0", "val1"]},
+        True,
     )
     index_df.to_excel.assert_called_once_with("output.ods")
     pd.read_excel.reset_mock()
@@ -134,6 +191,8 @@ def test_read_build_write_index(mocker):
         "form col",
         [],
         None,
+        {},
+        False,
     )
     index_df.to_excel.assert_called_once_with("output.ods")
 
@@ -293,6 +352,71 @@ def test_empty_form():
             "form_count": [1, 1],
             "form": ["abc", "def"],
             "refs": ["r0", "r2"],
+        }
+    )
+    assert index_df.compare(expected_index_df).empty
+
+
+def test_filter():
+    """
+    test that filtering works.
+    """
+    df = pd.DataFrame(
+        {
+            "form": ["abcdef", "xyz", "abc", "def", "xyzabc"],
+            "ref": ["r0", "r1", "r2", "r3", "r4"],
+            "parent": ["a@d", "x", "a", "d", "x@a"],
+            "pos": ["val0@val1", "val2", "val0", "val1", "val2@val0"],
+        }
+    )
+    index_df = indeksilo.build_index(
+        df, ["ref"], "form", ["parent"], "@", {"pos": ["val0", "val2"]}
+    )
+    expected_index_df = pd.DataFrame(
+        {
+            "parent_count": [3, "", "", 2, ""],
+            "parent": ["a", "", "", "x", ""],
+            "form_count": [1, 1, 1, 1, 1],
+            "form": ["abc", "abcdef", "xyzabc", "xyz", "xyzabc"],
+            "refs": ["r2", "r0", "r4", "r1", "r4"],
+        }
+    )
+    assert index_df.compare(expected_index_df).empty
+    index_df = indeksilo.build_index(
+        df,
+        ["ref"],
+        "form",
+        ["parent"],
+        "@",
+        {"pos": ["val0", "val2"]},
+        True,
+    )
+    expected_index_df = pd.DataFrame(
+        {
+            "parent_count": [2, ""],
+            "parent": ["d", ""],
+            "form_count": [1, 1],
+            "form": ["abcdef", "def"],
+            "refs": ["r0", "r3"],
+        }
+    )
+    assert index_df.compare(expected_index_df).empty
+    index_df = indeksilo.build_index(
+        df,
+        ["ref"],
+        "form",
+        ["parent"],
+        "@",
+        {"form": ["xyz", "abc"]},
+        True,
+    )
+    expected_index_df = pd.DataFrame(
+        {
+            "parent_count": [2, "", 2, "", 1],
+            "parent": ["a", "", "d", "", "x"],
+            "form_count": [1, 1, 1, 1, 1],
+            "form": ["abcdef", "xyzabc", "abcdef", "def", "xyzabc"],
+            "refs": ["r0", "r4", "r0", "r3", "r4"],
         }
     )
     assert index_df.compare(expected_index_df).empty
