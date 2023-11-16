@@ -118,7 +118,7 @@ def _get_filters(col_names, filters):
     return filters_i
 
 
-def build_index(
+def build_index(  # noqa: PLR0913
     df,
     ref_cols,
     form_col,
@@ -168,7 +168,7 @@ def build_index(
     return index_df
 
 
-def read_build_write_index(
+def read_build_write_index(  # noqa: PLR0913
     input_filename,
     output_filename,
     ref_cols,

@@ -12,7 +12,7 @@ _FILTER_SEP = ":"
 
 def _parse_filter_expr(parser, expr):
     split_expr = expr.split(_FILTER_SEP, maxsplit=1)
-    if len(split_expr) != 2:
+    if len(split_expr) != 2:  # noqa: PLR2004
         parser.error(
             'invalid filter expression: "{expr}"; must be of format '
             '"col{sep}regex"'.format(expr=expr, sep=_FILTER_SEP)

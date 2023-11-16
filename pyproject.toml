@@ -2,14 +2,6 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-[tool.black]
-line-length = 79
-target-version = ["py38"]
-
-[tool.isort]
-profile = "black"
-line_length = 79
-
 [tool.poetry]
 name = "indeksilo"
 version = "0.2.0"
@@ -35,6 +27,13 @@ pytest-cov = "4.1.0"
 
 [tool.poetry.scripts]
 indeksilo = "indeksilo.cli:main"
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "I", "N", "UP", "YTT", "B", "SIM", "PL"]
+ignore = ["UP030", "UP032"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
