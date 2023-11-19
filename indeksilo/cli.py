@@ -83,8 +83,8 @@ def main():
             '"col{sep}regex", where col is a column name and regex is a '
             "regular expression matching the value (after splitting); can be "
             "used multiple times; the default behavior is to include only "
-            "the lines that match an expression, lines not matching any of "
-            "the expressions are ignored; this behavior can be reversed with "
+            "the rows that match an expression, rows not matching any of the "
+            "expressions are ignored; this behavior can be reversed with "
             "--filter-exclude".format(sep=_FILTER_SEP)
         ),
     )
@@ -93,9 +93,8 @@ def main():
         action="store_true",
         help=(
             "reverse the filter function: instead of including only the "
-            "lines that match an expression, exclude all lines that match "
-            "one; only the lines not matching any of the expressions are "
-            "included"
+            "rows that match an expression, exclude all rows that match one; "
+            "only the rows not matching any of the expressions are included"
         ),
     )
     args = parser.parse_args()

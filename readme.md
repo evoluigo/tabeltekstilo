@@ -10,7 +10,7 @@ indeksilo allows to generate a multi-level alphabetical index from text in tabul
 
 ## introduction
 
-text in tabular data format is text formatted as a table (usually stored as a spreadsheet file), where each line of the table contains one word of the text.
+text in tabular data format is text formatted as a table (usually stored as a spreadsheet file), where each row of the table contains one word of the text.
 one column contains the actual word as it appears in the text, while other columns may contain more information about the word, like the page and line number where it appears, a cleaned-up form (with uniform casing and no punctuation), its lemma, its grammatical category,…
 
 from text in that format, indeksilo generates an alphabetical index (like the ones that appear at the end of books).
@@ -99,3 +99,59 @@ this is because the lemma column contained two values, separated by the defined 
 
 note that the word “hodiaŭ” appears twice on the same line.
 this is why its reference has “(2)” appended to it.
+
+## filtering
+
+indeksilo allows to filter rows based on column values using regular expressions.
+
+for example, using the same input file as in the previous example, let’s say that only noun lemmas should appear.
+in this case, they all end with “o”, so this command can be used:
+
+```
+indeksilo --ref-col page --ref-col line --parent-col lemma --form-col form --split-char + --filter "lemma:.*o" input.ods output.ods
+```
+
+in this example, the argument is quoted to avoid the `*` character to be interpreted by the shell.
+this depends on the shell used.
+
+this will generate the following table:
+
+|   | lemma_count | lemma | form_count | form      | refs  |
+| - | ----------- | ----- | ---------- | --------- | ----- |
+| 0 | 1           | ŝanco | 1          | bonŝancaj | 42, 2 |
+| 1 | 1           | suno  | 1          | suno      | 42, 1 |
+
+note that “bonŝancaj” appears only once in this case, because the lemma “bona” was filtered out.
+
+multiple filter arguments may be used.
+the format of the filter expressions is `col:regex`, where `col` is a column name and `regex` is a regular expression matching the value (after splitting).
+any column of the input table can be used, even those not used by the index.
+
+by default, filtering is inclusive, which means that at least one expression should match for the row to be included.
+this behavior can be reversed with `--filter-exclude`.
+in this case, any row matching an expression is excluded; only the rows not matching any of the expressions are included.
+
+for example, still using the same input file, let’s say that forms with less than 4 letters should be excluded.
+this command can be used:
+
+```
+indeksilo --ref-col page --ref-col line --parent-col lemma --form-col form --split-char + --filter "form:.{1,3}" --filter-exclude input.ods output.ods
+```
+
+this will generate the following table:
+
+|   | lemma_count | lemma  | form_count | form      | refs         |
+| - | ----------- | ------ | ---------- | --------- | ------------ |
+| 0 | 1           | bona   | 1          | bonŝancaj | 42, 2        |
+| 1 | 1           | brili  | 1          | brilas    | 42, 1        |
+| 2 | 3           | esti   | 2          | estas     | 42, 1; 42, 2 |
+| 3 |             |        | 1          | estis     | 42, 1        |
+| 4 | 1           | hieraŭ | 1          | hieraŭ    | 42, 1        |
+| 5 | 2           | hodiaŭ | 2          | hodiaŭ    | 42, 1 (2)    |
+| 6 | 1           | ŝanco  | 1          | bonŝancaj | 42, 2        |
+| 7 | 1           | suno   | 1          | suno      | 42, 1        |
+| 8 | 2           | varma  | 1          | malvarme  | 42, 1        |
+| 9 |             |        | 1          | varme     | 42, 1        |
+
+indeksilo uses python’s regular expressions.
+their documentation is [here](https://docs.python.org/3/library/re.html).
