@@ -155,3 +155,9 @@ this will generate the following table:
 
 indeksilo uses python’s regular expressions.
 their documentation is [here](https://docs.python.org/3/library/re.html).
+
+## credits
+
+This development was funded by Bastien Kindt for the GREgORI Project.<br>
+<https://uclouvain.be/fr/instituts-recherche/incal/ciol/gregori-project.html><br>
+<https://www.v2.gregoriproject.com/>
