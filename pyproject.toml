@@ -4,11 +4,21 @@
 
 [tool.poetry]
 name = "indeksilo"
-version = "0.2.0"
+version = "1.0.0"
 description = "generate a multi-level alphabetical index from text in tabular data format"
 authors = ["hugues de keyzer"]
 license = "AGPL-3.0-or-later"
 readme = "readme.md"
+keywords = [
+    "alphabetical",
+    "index",
+    "indexer",
+    "pandas",
+    "spreadsheet",
+    "tabular",
+    "text",
+]
+classifiers = ["Topic :: Text Processing :: Indexing"]
 include = ["LICENSES/*"]
 
 [tool.poetry.dependencies]

@@ -6,4 +6,4 @@ from indeksilo.indexer import build_index, read_build_write_index
 
 __all__ = ["build_index", "read_build_write_index"]
 
-__version__ = "0.2.0"
+__version__ = "1.0.0"
