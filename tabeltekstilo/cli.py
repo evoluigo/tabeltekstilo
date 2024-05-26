@@ -5,7 +5,7 @@
 import argparse
 from collections import defaultdict
 
-from indeksilo import read_build_write_index
+from . import read_build_write_index
 
 _FILTER_SEP = ":"
 

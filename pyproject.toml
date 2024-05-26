@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 [tool.poetry]
-name = "indeksilo"
-version = "1.0.0"
-description = "generate a multi-level alphabetical index from text in tabular data format"
+name = "tabeltekstilo"
+version = "0.1.0"
+description = "multi-purpose tool for manipulating text in tabular data format"
 authors = ["hugues de keyzer"]
 license = "AGPL-3.0-or-later"
 readme = "readme.md"
@@ -18,7 +18,10 @@ keywords = [
     "tabular",
     "text",
 ]
-classifiers = ["Topic :: Text Processing :: Indexing"]
+classifiers = [
+    "Topic :: Text Processing :: General",
+    "Topic :: Text Processing :: Indexing",
+]
 include = ["LICENSES/*"]
 
 [tool.poetry.dependencies]
@@ -36,7 +39,7 @@ pytest-mock = "3.11.1"
 pytest-cov = "4.1.0"
 
 [tool.poetry.scripts]
-indeksilo = "indeksilo.cli:main"
+tabeltekstilo = "tabeltekstilo.cli:main"
 
 [tool.ruff]
 line-length = 79
