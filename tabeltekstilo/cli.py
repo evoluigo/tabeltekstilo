@@ -126,7 +126,12 @@ def main():
             "multi-purpose tool for manipulating text in tabular data format"
         )
     )
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(
+        description=(
+            "the first argument specifies the function to use, which should "
+            "be one of:"
+        ),
+    )
     _add_indexer_command(subparsers)
     args = parser.parse_args()
     args.func(args)
