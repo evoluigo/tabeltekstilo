@@ -5,14 +5,14 @@
 import pandas as pd
 import pytest
 
-import indeksilo
+import tabeltekstilo
 
 
 def test_main_package_entry():
     """
-    test that indeksilo.__main__ is well-formed.
+    test that tabeltekstilo.__main__ is well-formed.
     """
-    from indeksilo import __main__  # noqa: F401
+    from tabeltekstilo import __main__  # noqa: F401
 
 
 def test_main(mocker):
@@ -23,7 +23,8 @@ def test_main(mocker):
     import sys
 
     sys.argv = [
-        "indeksilo",
+        "tabeltekstilo",
+        "indexer",
         "--ref-col",
         "ref0",
         "--ref-col",
@@ -45,9 +46,9 @@ def test_main(mocker):
         "output.ods",
     ]
     read_build_write_index = mocker.patch(
-        "indeksilo.cli.read_build_write_index"
+        "tabeltekstilo.cli.read_build_write_index"
     )
-    indeksilo.cli.main()
+    tabeltekstilo.cli.main()
     read_build_write_index.assert_called_once_with(
         "input.ods",
         "output.ods",
@@ -60,7 +61,8 @@ def test_main(mocker):
     )
     read_build_write_index.reset_mock()
     sys.argv = [
-        "indeksilo",
+        "tabeltekstilo",
+        "indexer",
         "--ref-col",
         "ref0",
         "--form-col",
@@ -68,7 +70,7 @@ def test_main(mocker):
         "input.ods",
         "output.ods",
     ]
-    indeksilo.cli.main()
+    tabeltekstilo.cli.main()
     read_build_write_index.assert_called_once_with(
         "input.ods",
         "output.ods",
@@ -87,10 +89,11 @@ def test_filter_args(mocker):
     """
     import sys
 
-    import indeksilo.cli
+    import tabeltekstilo.cli
 
     sys.argv = [
-        "indeksilo",
+        "tabeltekstilo",
+        "indexer",
         "--ref-col",
         "ref0",
         "--form-col",
@@ -101,7 +104,7 @@ def test_filter_args(mocker):
         "output.ods",
     ]
     with pytest.raises(SystemExit):
-        indeksilo.cli.main()
+        tabeltekstilo.cli.main()
 
 
 def test_read_build_write_index(mocker):
@@ -122,7 +125,7 @@ def test_read_build_write_index(mocker):
         }
     )
     read_excel.return_value = df
-    build_index = mocker.patch("indeksilo.indexer.build_index")
+    build_index = mocker.patch("tabeltekstilo.indexer.build_index")
     index_df = pd.DataFrame(
         {
             "parent 2": [],
@@ -133,7 +136,7 @@ def test_read_build_write_index(mocker):
     )
     build_index.return_value = index_df
     mocker.patch.object(index_df, "to_excel")
-    indeksilo.read_build_write_index(
+    tabeltekstilo.read_build_write_index(
         "input.ods",
         "output.ods",
         ["ref 0", "ref 1"],
@@ -170,7 +173,7 @@ def test_read_build_write_index(mocker):
     pd.read_excel.reset_mock()
     build_index.reset_mock()
     index_df.to_excel.reset_mock()
-    indeksilo.read_build_write_index(
+    tabeltekstilo.read_build_write_index(
         "input.ods",
         "output.ods",
         ["ref 0"],
@@ -211,7 +214,7 @@ def test_build_index(mocker):
             "parent 0": ["x@a@j", "a", "x@j", "a"],
         }
     )
-    index_df = indeksilo.build_index(
+    index_df = tabeltekstilo.build_index(
         df,
         ["ref 0", "ref 1"],
         "form",
@@ -260,7 +263,7 @@ def test_build_index(mocker):
             "refs",
         ]
     ).all()
-    index_df = indeksilo.build_index(
+    index_df = tabeltekstilo.build_index(
         df,
         ["ref 0"],
         "form",
@@ -287,7 +290,7 @@ def test_alphabetical_ordering():
             "parent": ["abc@âab", "âab@abc"],
         }
     )
-    index_df = indeksilo.build_index(
+    index_df = tabeltekstilo.build_index(
         df,
         ["ref"],
         "form",
@@ -317,7 +320,7 @@ def test_grouped_refs():
             "ref": ["r0", "r0", "r0", "r1", "r1"],
         }
     )
-    index_df = indeksilo.build_index(
+    index_df = tabeltekstilo.build_index(
         df,
         ["ref"],
         "form",
@@ -342,7 +345,7 @@ def test_empty_form():
             "ref": ["r0", "r1", "r2"],
         }
     )
-    index_df = indeksilo.build_index(
+    index_df = tabeltekstilo.build_index(
         df,
         ["ref"],
         "form",
@@ -369,7 +372,7 @@ def test_filter():
             "pos": ["val0@val1", "val2", "val0", "val1", "val2@val0"],
         }
     )
-    index_df = indeksilo.build_index(
+    index_df = tabeltekstilo.build_index(
         df, ["ref"], "form", ["parent"], "@", {"pos": ["val0", "val2"]}
     )
     expected_index_df = pd.DataFrame(
@@ -382,7 +385,7 @@ def test_filter():
         }
     )
     assert index_df.compare(expected_index_df).empty
-    index_df = indeksilo.build_index(
+    index_df = tabeltekstilo.build_index(
         df,
         ["ref"],
         "form",
@@ -401,7 +404,7 @@ def test_filter():
         }
     )
     assert index_df.compare(expected_index_df).empty
-    index_df = indeksilo.build_index(
+    index_df = tabeltekstilo.build_index(
         df,
         ["ref"],
         "form",

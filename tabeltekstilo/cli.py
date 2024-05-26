@@ -30,12 +30,31 @@ def _parse_filters(parser, filter_args):
     return dict(filters)
 
 
-def main():
-    parser = argparse.ArgumentParser(
+def _indexer(args):
+    filters = _parse_filters(args.parser, args.filter)
+    read_build_write_index(
+        args.input_filename,
+        args.output_filename,
+        args.ref_col,
+        args.form_col,
+        args.parent_col,
+        args.split_char,
+        filters,
+        args.filter_exclude,
+    )
+
+
+def _add_indexer_command(subparsers):
+    parser = subparsers.add_parser(
+        "indexer",
         description=(
             "generate a multi-level alphabetical index from text in tabular "
             "data format"
-        )
+        ),
+        help=(
+            "generate a multi-level alphabetical index from text in tabular "
+            "data format"
+        ),
     )
     parser.add_argument(
         "input_filename", help="the input filename (.ods or .xlsx)"
@@ -97,15 +116,17 @@ def main():
             "only the rows not matching any of the expressions are included"
         ),
     )
-    args = parser.parse_args()
-    filters = _parse_filters(parser, args.filter)
-    read_build_write_index(
-        args.input_filename,
-        args.output_filename,
-        args.ref_col,
-        args.form_col,
-        args.parent_col,
-        args.split_char,
-        filters,
-        args.filter_exclude,
+    parser.set_defaults(parser=parser)
+    parser.set_defaults(func=_indexer)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=(
+            "multi-purpose tool for manipulating text in tabular data format"
+        )
     )
+    subparsers = parser.add_subparsers()
+    _add_indexer_command(subparsers)
+    args = parser.parse_args()
+    args.func(args)
