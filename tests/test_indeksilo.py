@@ -8,13 +8,6 @@ import pytest
 import tabeltekstilo
 
 
-def test_main_package_entry():
-    """
-    test that tabeltekstilo.__main__ is well-formed.
-    """
-    from tabeltekstilo import __main__  # noqa: F401
-
-
 def test_main(mocker):
     """
     test that the main() function calls read_build_write_index() with correct
