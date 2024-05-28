@@ -131,6 +131,8 @@ def main():
             "the first argument specifies the function to use, which should "
             "be one of:"
         ),
+        dest="subcommand",
+        required=True,
     )
     _add_index_command(subparsers)
     args = parser.parse_args()
