@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-from .indexer import build_index, read_build_write_index
+from .index import build_index, read_build_write_index
 
 __all__ = ["build_index", "read_build_write_index"]
 

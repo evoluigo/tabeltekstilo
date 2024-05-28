@@ -17,7 +17,7 @@ def test_main(mocker):
 
     sys.argv = [
         "tabeltekstilo",
-        "indexer",
+        "index",
         "--ref-col",
         "ref0",
         "--ref-col",
@@ -55,7 +55,7 @@ def test_main(mocker):
     read_build_write_index.reset_mock()
     sys.argv = [
         "tabeltekstilo",
-        "indexer",
+        "index",
         "--ref-col",
         "ref0",
         "--form-col",
@@ -86,7 +86,7 @@ def test_filter_args(mocker):
 
     sys.argv = [
         "tabeltekstilo",
-        "indexer",
+        "index",
         "--ref-col",
         "ref0",
         "--form-col",
@@ -118,7 +118,7 @@ def test_read_build_write_index(mocker):
         }
     )
     read_excel.return_value = df
-    build_index = mocker.patch("tabeltekstilo.indexer.build_index")
+    build_index = mocker.patch("tabeltekstilo.index.build_index")
     index_df = pd.DataFrame(
         {
             "parent 2": [],

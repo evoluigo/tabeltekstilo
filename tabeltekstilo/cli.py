@@ -30,7 +30,7 @@ def _parse_filters(parser, filter_args):
     return dict(filters)
 
 
-def _indexer(args):
+def _index(args):
     filters = _parse_filters(args.parser, args.filter)
     read_build_write_index(
         args.input_filename,
@@ -44,9 +44,9 @@ def _indexer(args):
     )
 
 
-def _add_indexer_command(subparsers):
+def _add_index_command(subparsers):
     parser = subparsers.add_parser(
-        "indexer",
+        "index",
         description=(
             "generate a multi-level alphabetical index from text in tabular "
             "data format"
@@ -117,7 +117,7 @@ def _add_indexer_command(subparsers):
         ),
     )
     parser.set_defaults(parser=parser)
-    parser.set_defaults(func=_indexer)
+    parser.set_defaults(func=_index)
 
 
 def main():
@@ -132,6 +132,6 @@ def main():
             "be one of:"
         ),
     )
-    _add_indexer_command(subparsers)
+    _add_index_command(subparsers)
     args = parser.parse_args()
     args.func(args)
