@@ -5,9 +5,60 @@
 import argparse
 from collections import defaultdict
 
-from . import read_build_write_index
+from . import read_build_write_dictionary, read_build_write_index
 
 _FILTER_SEP = ":"
+
+
+def _dictionary(args):
+    read_build_write_dictionary(
+        args.input_filename,
+        args.output_filename,
+        args.form_col,
+        args.agg_col,
+        args.join_str,
+    )
+
+
+def _add_dictionary_command(subparsers):
+    parser = subparsers.add_parser(
+        "dictionary",
+        description=(
+            "generate an alphabetical dictionary by aggregating columns"
+        ),
+        help="generate an alphabetical dictionary by aggregating columns",
+    )
+    parser.add_argument(
+        "input_filename", help="the input filename (.ods or .xlsx)"
+    )
+    parser.add_argument(
+        "output_filename", help="the output filename (.ods or .xlsx)"
+    )
+    parser.add_argument(
+        "--form-col",
+        required=True,
+        help=(
+            "title of the column that contains the form that will appear in "
+            "the dictionary"
+        ),
+    )
+    parser.add_argument(
+        "--agg-col",
+        required=True,
+        action="append",
+        help=(
+            "title of the column that will be aggregated (can be used "
+            "multiple times)"
+        ),
+    )
+    parser.add_argument(
+        "--join-str",
+        help=(
+            "string used to join values when aggregating columns (default: "
+            '"; ")'
+        ),
+    )
+    parser.set_defaults(func=_dictionary)
 
 
 def _parse_filter_expr(parser, expr):
@@ -47,14 +98,8 @@ def _index(args):
 def _add_index_command(subparsers):
     parser = subparsers.add_parser(
         "index",
-        description=(
-            "generate a multi-level alphabetical index from text in tabular "
-            "data format"
-        ),
-        help=(
-            "generate a multi-level alphabetical index from text in tabular "
-            "data format"
-        ),
+        description="generate a multi-level alphabetical index",
+        help="generate a multi-level alphabetical index",
     )
     parser.add_argument(
         "input_filename", help="the input filename (.ods or .xlsx)"
@@ -134,6 +179,7 @@ def main():
         dest="subcommand",
         required=True,
     )
+    _add_dictionary_command(subparsers)
     _add_index_command(subparsers)
     args = parser.parse_args()
     args.func(args)
