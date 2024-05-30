@@ -22,7 +22,7 @@ classifiers = [
     "Topic :: Text Processing :: General",
     "Topic :: Text Processing :: Indexing",
 ]
-include = ["LICENSES/*"]
+include = ["tests"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
