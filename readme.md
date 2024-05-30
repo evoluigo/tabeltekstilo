@@ -4,47 +4,144 @@ SPDX-FileCopyrightText: 2023 hugues de keyzer
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-# indeksilo
+# tabeltekstilo
 
-indeksilo allows to generate a multi-level alphabetical index from text in tabular data format.
+tabeltekstilo is a multi-purpose tool for manipulating text in tabular data format.
 
 ## introduction
 
 text in tabular data format is text formatted as a table (usually stored as a spreadsheet file), where each row of the table contains one word of the text.
 one column contains the actual word as it appears in the text, while other columns may contain more information about the word, like the page and line number where it appears, a cleaned-up form (with uniform casing and no punctuation), its lemma, its grammatical category,…
 
-from text in that format, indeksilo generates an alphabetical index (like the ones that appear at the end of books).
-see the example section below for a concrete example.
+from text in that format, tabeltekstilo can generate:
+
+*   an alphabetical dictionary by aggregating columns
+*   an alphabetical index (like the ones that appear at the end of books).
+
+see [the examples section](#examples) below for concrete examples.
 
 ## features
 
-*   multi-level index generation
+general features:
+
 *   alphabetical sorting using the unicode collation algorithm
 *   right-to-left text support
+
+dictionary features:
+
+*   dictionary generation
+*   multiple column aggregation with custom join string
+
+index features:
+
+*   multi-level index generation
 *   multiple values in parent columns support for agglutinated forms
 *   multiple reference support (for example: page, line)
 *   grouping of identical references with count
-*   total count of form occurences at each parent level
+*   total count of form occurrences at each parent level
 *   filtering with regular expressions
 
 ## usage
 
-indeksilo takes an input filename and an output filename as arguments, as well as some options.
+tabeltekstilo takes a subcommand, an input filename and an output filename as arguments, as well as some options.
 input and output files should be in opendocument (.ods) or office open xml (.xlsx) format.
+
+### dictionary
+
 the minimal usage is:
 
 ```
-indeksilo --ref-col ref --form-col form input.ods output.ods
+tabeltekstilo dictionary --form-col form --agg-col agg input.ods output.ods
+```
+where `form` is title of the column (in `input.ods`) that contains the form that will appear in the dictionary and `agg` is the title of the column (in `input.ods`) that contains the values to aggregate next to the form.
+
+to display a full description of the usage syntax:
+
+```
+tabeltekstilo dictionary --help
+```
+
+### index
+
+the minimal usage is:
+
+```
+tabeltekstilo index --ref-col ref --form-col form input.ods output.ods
 ```
 where `ref` is the title of the column (in `input.ods`) that contains the reference to use in the index (the page number, for example) and `form` is title of the column (in `input.ods`) that contains the form that will appear in the index.
 
 to display a full description of the usage syntax:
 
 ```
-indeksilo --help
+tabeltekstilo index --help
 ```
 
-## example
+## examples
+
+### dictionary
+
+let’s take the following example text:
+
+> le reste des avions vola vers l’est. nous avions du retard. c’est ce qu’il reste des vers à propos des vers.
+
+it must first be converted to this format as `input.ods`:
+
+| word    | form   | lemma      | type         |
+| ------- | ------ | ---------- | ------------ |
+| le      | le     | le (la)    | det_art      |
+| reste   | reste  | reste      | noun         |
+| des     | des    | de+le (la) | prep+det_art |
+| avions  | avions | avion      | noun         |
+| vola    | vola   | voler      | verb         |
+| vers    | vers   | vers       | prep         |
+| l’      | l’     | le (la)    | det_art      |
+| est.    | est    | est        | noun         |
+| nous    | nous   | nous       | pro_per      |
+| avions  | avions | avoir      | verb         |
+| du      | du     | de+le (la) | prep+det_art |
+| retard. | retard | retard     | noun         |
+| c’      | c’     | ce         | pro_dem      |
+| est     | est    | être       | verb         |
+| ce      | ce     | ce         | pro_dem      |
+| qu’     | qu’    | que        | conjs        |
+| il      | il     | il         | pro_per      |
+| reste   | reste  | rester     | verb         |
+| des     | des    | de+le (la) | prep+det_art |
+| vers    | vers   | vers       | noun         |
+| à       | à      | à          | prep         |
+| propos  | propos | propos     | noun         |
+| des     | des    | de+le (la) | prep+det_art |
+| vers.   | vers   | ver        | noun         |
+
+now, let’s generate the dictionary by calling:
+
+```
+tabeltekstilo dictionary --form-col form --agg-col lemma --agg-col type input.ods output.ods
+```
+
+this will generate the following table as `output.ods`:
+
+|    | form   | lemma           | type             |
+| -- | ------ | --------------- | ---------------- |
+| 0  | à      | à               | prep             |
+| 1  | avions | avion; avoir    | noun; verb       |
+| 2  | c’     | ce              | pro_dem          |
+| 3  | ce     | ce              | pro_dem          |
+| 4  | des    | de+le (la)      | prep+det_art     |
+| 5  | du     | de+le (la)      | prep+det_art     |
+| 6  | est    | est; être       | noun; verb       |
+| 7  | il     | il              | pro_per          |
+| 8  | l’     | le (la)         | det_art          |
+| 9  | le     | le (la)         | det_art          |
+| 10 | nous   | nous            | pro_per          |
+| 11 | propos | propos          | noun             |
+| 12 | qu’    | que             | conjs            |
+| 13 | reste  | reste; rester   | noun; verb       |
+| 14 | retard | retard          | noun             |
+| 15 | vers   | ver; vers; vers | noun; noun; prep |
+| 16 | vola   | voler           | verb             |
+
+### index
 
 let’s take the following example text, and say that it appears on line 1 and 2 of page 42:
 
@@ -73,7 +170,7 @@ it must first be converted to this format as `input.ods`:
 now, let’s generate the index by calling:
 
 ```
-indeksilo --ref-col page --ref-col line --parent-col lemma --form-col form --split-char + input.ods output.ods
+tabeltekstilo index --ref-col page --ref-col line --parent-col lemma --form-col form --split-char + input.ods output.ods
 ```
 
 this will generate the following table as `output.ods`:
@@ -100,15 +197,15 @@ this is because the lemma column contained two values, separated by the defined 
 note that the word “hodiaŭ” appears twice on the same line.
 this is why its reference has “(2)” appended to it.
 
-## filtering
+#### filtering
 
-indeksilo allows to filter rows based on column values using regular expressions.
+the tabeltekstilo index function allows to filter rows based on column values using regular expressions.
 
 for example, using the same input file as in the previous example, let’s say that only noun lemmas should appear.
 in this case, they all end with “o”, so this command can be used:
 
 ```
-indeksilo --ref-col page --ref-col line --parent-col lemma --form-col form --split-char + --filter "lemma:.*o" input.ods output.ods
+tabeltekstilo index --ref-col page --ref-col line --parent-col lemma --form-col form --split-char + --filter "lemma:.*o" input.ods output.ods
 ```
 
 in this example, the argument is quoted to avoid the `*` character to be interpreted by the shell.
@@ -135,7 +232,7 @@ for example, still using the same input file, let’s say that forms with less t
 this command can be used:
 
 ```
-indeksilo --ref-col page --ref-col line --parent-col lemma --form-col form --split-char + --filter "form:.{1,3}" --filter-exclude input.ods output.ods
+tabeltekstilo index --ref-col page --ref-col line --parent-col lemma --form-col form --split-char + --filter "form:.{1,3}" --filter-exclude input.ods output.ods
 ```
 
 this will generate the following table:
@@ -153,7 +250,7 @@ this will generate the following table:
 | 8 | 2           | varma  | 1          | malvarme  | 42, 1        |
 | 9 |             |        | 1          | varme     | 42, 1        |
 
-indeksilo uses python’s regular expressions.
+tabeltekstilo uses python’s regular expressions.
 their documentation is [here](https://docs.python.org/3/library/re.html).
 
 ## credits
