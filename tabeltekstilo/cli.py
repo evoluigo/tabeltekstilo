@@ -165,11 +165,23 @@ def _add_index_command(subparsers):
     parser.set_defaults(func=_index)
 
 
+def _output_version():
+    from . import __name__ as name
+    from . import __version__ as version
+
+    print(f"{name} {version}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description=(
             "multi-purpose tool for manipulating text in tabular data format"
         )
+    )
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="output version information and exit",
     )
     subparsers = parser.add_subparsers(
         description=(
@@ -177,9 +189,13 @@ def main():
             "be one of:"
         ),
         dest="subcommand",
-        required=True,
     )
     _add_dictionary_command(subparsers)
     _add_index_command(subparsers)
     args = parser.parse_args()
+    if args.version:
+        _output_version()
+        return
+    if args.subcommand is None:
+        parser.error("the following arguments are required: subcommand")
     args.func(args)

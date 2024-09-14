@@ -5,6 +5,7 @@
 import pandas as pd
 
 import tabeltekstilo
+import tabeltekstilo.cli
 
 
 def test_main(mocker):

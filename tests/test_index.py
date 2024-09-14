@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 
 import tabeltekstilo
+import tabeltekstilo.cli
 
 
 def test_main(mocker):
