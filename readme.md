@@ -16,7 +16,8 @@ one column contains the actual word as it appears in the text, while other colum
 from text in that format, tabeltekstilo can generate:
 
 *   an alphabetical dictionary by aggregating columns
-*   an alphabetical index (like the ones that appear at the end of books).
+*   an alphabetical index (like the ones that appear at the end of books)
+*   an xml file
 
 see [the examples section](#examples) below for concrete examples.
 
@@ -40,6 +41,13 @@ index features:
 *   grouping of identical references with count
 *   total count of form occurrences at each parent level
 *   filtering with regular expressions
+
+xml features:
+
+*   nesting of forms under multiple levels of parent columns
+*   custom attributes on form elements
+*   custom root element
+*   optional header with custom copyright and licensing information
 
 ## usage
 
@@ -74,6 +82,21 @@ to display a full description of the usage syntax:
 
 ```
 tabeltekstilo index --help
+```
+
+### xml
+
+the minimal usage is:
+
+```
+tabeltekstilo xml input.ods output.xml
+```
+where `input.ods` is the input file and `output.xml` the output file to generate.
+
+to display a full description of the usage syntax:
+
+```
+tabeltekstilo xml --help
 ```
 
 ## examples
@@ -252,6 +275,65 @@ this will generate the following table:
 
 tabeltekstilo uses python’s regular expressions.
 their documentation is [here](https://docs.python.org/3/library/re.html).
+
+### xml
+
+let’s take the table from the index command example, but change it slightly by renaming the first 2 columns and putting the word column last :
+
+| page p | line l | form      | lemma      | word       |
+| ------ | ------ | --------- | ---------- | ---------- |
+| 42     | 1      | la        | la         | la         |
+| 42     | 1      | suno      | suno       | suno       |
+| 42     | 1      | brilas    | brili      | brilas     |
+| 42     | 1      | hodiaŭ    | hodiaŭ     | hodiaŭ.    |
+| 42     | 1      | hieraŭ    | hieraŭ     | hieraŭ     |
+| 42     | 1      | estis     | esti       | estis      |
+| 42     | 1      | malvarme  | varma      | malvarme,  |
+| 42     | 1      | sed       | sed        | sed        |
+| 42     | 1      | hodiaŭ    | hodiaŭ     | hodiaŭ     |
+| 42     | 1      | estas     | esti       | estas      |
+| 42     | 1      | varme     | varma      | varme.     |
+| 42     | 2      | ni        | ni         | ni         |
+| 42     | 2      | estas     | esti       | estas      |
+| 42     | 2      | bonŝancaj | bona+ŝanco | bonŝancaj! |
+
+now, let’s generate the xml file by calling:
+
+```
+tabeltekstilo xml input.ods output.xml
+```
+
+this will generate the following file as `output.xml`:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<document>
+  <page p="42">
+    <line l="1">
+      <word form="la" lemma="la">la</word>
+      <word form="suno" lemma="suno">suno</word>
+      <word form="brilas" lemma="brili">brilas</word>
+      <word form="hodiaŭ" lemma="hodiaŭ">hodiaŭ.</word>
+      <word form="hieraŭ" lemma="hieraŭ">hieraŭ</word>
+      <word form="estis" lemma="esti">estis</word>
+      <word form="malvarme" lemma="varma">malvarme,</word>
+      <word form="sed" lemma="sed">sed</word>
+      <word form="hodiaŭ" lemma="hodiaŭ">hodiaŭ</word>
+      <word form="estas" lemma="esti">estas</word>
+      <word form="varme" lemma="varma">varme.</word>
+    </line>
+    <line l="2">
+      <word form="ni" lemma="ni">ni</word>
+      <word form="estas" lemma="esti">estas</word>
+      <word form="bonŝancaj" lemma="bona+ŝanco">bonŝancaj!</word>
+    </line>
+  </page>
+</document>
+```
+
+the parent columns are identified by the fact that they contain a space character which separates the element name from the attribute name.
+
+the last column is used as the deepest element, with all non-parent columns before it used as attributes.
 
 ## credits
 
