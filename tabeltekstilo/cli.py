@@ -5,7 +5,11 @@
 import argparse
 from collections import defaultdict
 
-from . import read_build_write_dictionary, read_build_write_index
+from . import (
+    convert_tabular_text_file_to_xml_file,
+    read_build_write_dictionary,
+    read_build_write_index,
+)
 
 _FILTER_SEP = ":"
 
@@ -165,6 +169,48 @@ def _add_index_command(subparsers):
     parser.set_defaults(func=_index)
 
 
+def _xml(args):
+    convert_tabular_text_file_to_xml_file(
+        args.input_filename,
+        args.output_filename,
+        root_element=args.root_element,
+        parent_prefix=args.parent_prefix,
+        copyright=args.copyright,
+        license=args.license,
+    )
+
+
+def _add_xml_command(subparsers):
+    from .xml import DEFAULT_ROOT_ELEMENT
+
+    parser = subparsers.add_parser(
+        "xml",
+        description="convert to an xml file",
+        help="convert to an xml file",
+    )
+    parser.add_argument(
+        "input_filename", help="the input filename (.ods or .xlsx)"
+    )
+    parser.add_argument("output_filename", help="the output filename (.xml)")
+    parser.add_argument(
+        "--root-element",
+        help=f"name of the root element (default: {DEFAULT_ROOT_ELEMENT})",
+    )
+    parser.add_argument(
+        "--parent-prefix",
+        help="prefix to identify and strip from parent elements",
+    )
+    parser.add_argument(
+        "--copyright",
+        help="copyright statement to add to the header",
+    )
+    parser.add_argument(
+        "--license",
+        help="license reference (uri) to add to the header",
+    )
+    parser.set_defaults(func=_xml)
+
+
 def _output_version():
     from . import __name__ as name
     from . import __version__ as version
@@ -192,6 +238,7 @@ def main():
     )
     _add_dictionary_command(subparsers)
     _add_index_command(subparsers)
+    _add_xml_command(subparsers)
     args = parser.parse_args()
     if args.version:
         _output_version()

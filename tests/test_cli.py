@@ -39,8 +39,8 @@ def test_no_subcommand(mocker):
     write_mock.assert_has_calls(
         [
             call(
-                "usage: tabeltekstilo [-h] [--version] {dictionary,index} "
-                "...\n"
+                "usage: tabeltekstilo [-h] [--version] "
+                "{dictionary,index,xml} ...\n"
             ),
             call(
                 "tabeltekstilo: error: the following arguments are required: "
