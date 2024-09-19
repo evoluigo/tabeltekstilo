@@ -339,4 +339,9 @@ the last column is used as the deepest element, with all non-parent columns befo
 
 This development was funded by Bastien Kindt for the GREgORI Project.<br>
 <https://uclouvain.be/fr/instituts-recherche/incal/ciol/gregori-project.html><br>
-<https://www.v2.gregoriproject.com/>
+<https://www.v2.gregoriproject.com/><br>
+with financial support from<br>
+INCAL - Institut des civilisations, arts et lettres<br>
+<https://uclouvain.be/fr/instituts-recherche/incal><br>
+CIOL - Centre d'études orientales - Institut orientaliste de Louvain<br>
+<https://uclouvain.be/fr/instituts-recherche/incal/ciol>
