@@ -23,7 +23,10 @@ classifiers = [
     "Topic :: Text Processing :: General",
     "Topic :: Text Processing :: Indexing",
 ]
-include = ["tests"]
+include = [
+    "changelog.md",
+    "tests",
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
